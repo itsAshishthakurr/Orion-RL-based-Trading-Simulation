@@ -119,6 +119,14 @@ def stats():
     return env.get_final_stats()
 
 
+def main():
+    import uvicorn
+    import os
+
+    port = int(os.getenv("PORT", 7860))
+    uvicorn.run("openenv.server.app:app", host="0.0.0.0", port=port)
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7860))
     uvicorn.run(app, host="0.0.0.0", port=port)
