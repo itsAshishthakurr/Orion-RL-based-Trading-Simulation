@@ -1,3 +1,12 @@
+---
+title: Orion Trading Simulation
+emoji: 📈
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_file: openenv/server/app.py
+pinned: false
+---
 # 🚀 Orion Trading Simulation
 
 A **multi-agent reinforcement learning environment** for stock trading, built with realistic market mechanics, financial constraints, and evaluation metrics.
