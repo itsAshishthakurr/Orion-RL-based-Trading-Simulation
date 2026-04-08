@@ -1,10 +1,9 @@
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
 from typing import Optional
 from openenv.server.environment import TradingEnvironment
-
 
 app = FastAPI(title="Orion Trading Simulation", version="1.0.0")
 
@@ -12,11 +11,11 @@ env = TradingEnvironment(difficulty="easy")
 
 
 class ResetRequest(BaseModel):
-    difficulty: str = "easy"
+    difficulty: Optional[str] = "easy"
 
 
 class StepRequest(BaseModel):
-    action: str
+    action: Optional[str] = "HOLD"
 
 
 @app.get("/health")
@@ -58,13 +57,22 @@ def tasks():
     ]
 
 
+# ✅ FIXED RESET (handles empty body)
 @app.post("/reset")
-def reset(request: ResetRequest):
+def reset(request: Optional[ResetRequest] = Body(default=None)):
     global env
-    if request.difficulty not in ("easy", "medium", "hard"):
+
+    difficulty = "easy"
+
+    if request and request.difficulty:
+        difficulty = request.difficulty
+
+    if difficulty not in ("easy", "medium", "hard"):
         raise HTTPException(status_code=400, detail="difficulty must be easy, medium, or hard")
-    env = TradingEnvironment(difficulty=request.difficulty)
+
+    env = TradingEnvironment(difficulty=difficulty)
     observation = env.reset()
+
     return {
         "observation": observation,
         "episode_id": env.episode_id,
@@ -73,12 +81,21 @@ def reset(request: ResetRequest):
     }
 
 
+# ✅ FIXED STEP (handles missing action safely)
 @app.post("/step")
-def step(request: StepRequest):
+def step(request: Optional[StepRequest] = Body(default=None)):
     global env
-    if request.action.upper() not in ("BUY", "SELL", "HOLD"):
-        raise HTTPException(status_code=400, detail="action must be BUY, SELL, or HOLD")
-    observation, reward, done = env.step(request.action)
+
+    action = "HOLD"
+
+    if request and request.action:
+        action = request.action.upper()
+
+    if action not in ("BUY", "SELL", "HOLD"):
+        action = "HOLD"
+
+    observation, reward, done = env.step(action)
+
     return {"observation": observation, "reward": reward, "done": done}
 
 
