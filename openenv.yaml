@@ -1,0 +1,46 @@
+name: orion-trading-simulation
+version: "1.0.0"
+description: "A multi-agent reinforcement learning environment simulating a stock trading market with three difficulty levels. Each level applies realistic Indian stock exchange rules including brokerage fees, STCG, LTCG, and DP charges."
+author: "Orion Team"
+environment: TradingEnvironment
+entry_point: openenv.server.app:app
+tasks:
+  - name: easy-trend-trading
+    difficulty: easy
+    description: "Trade on a trending market over 50 steps. Rewards are in range 0.0 to 1.0."
+    max_steps: 50
+    reward_range: [0.0, 1.0]
+  - name: medium-volatile-trading
+    difficulty: medium
+    description: "Trade on a volatile market over 75 steps with brokerage fees and 10 percent tax on profits."
+    max_steps: 75
+    reward_range: [0.0, 1.0]
+  - name: hard-sideways-trading
+    difficulty: hard
+    description: "Trade on a sideways market over 100 steps with STCG at 20 percent, LTCG at 12.5 percent, and DP charge of Rs15 per sell."
+    max_steps: 100
+    reward_range: [0.0, 1.0]
+difficulty_levels:
+  - easy
+  - medium
+  - hard
+agents:
+  - random
+  - safe
+  - smart
+  - learning
+market_types:
+  - trend
+  - volatile
+  - sideways
+actions:
+  - BUY
+  - SELL
+  - HOLD
+endpoints:
+  health: GET /health
+  reset: POST /reset
+  step: POST /step
+  state: GET /state
+  stats: GET /stats
+  tasks: GET /tasks
